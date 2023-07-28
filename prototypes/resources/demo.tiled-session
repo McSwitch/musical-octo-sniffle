@@ -1,0 +1,50 @@
+{
+    "activeFile": "/home/justinrza/Downloads/PUNY_WORLD_v1/Tiled/punyworld-overworld-tiles.tsx",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "/home/justinrza/Downloads/PUNY_WORLD_v1/Tiled/punyworld-overworld-tiles.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 4
+        },
+        "/home/justinrza/Downloads/PUNY_WORLD_v1/Tiled/samplemap1.tmj": {
+            "scale": 8,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 420.375,
+                "y": 271.125
+            }
+        },
+        "map.json": {
+            "scale": 1.8346874999999998,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 239.27780616590013,
+                "y": 165.15074092999487
+            }
+        },
+        "tileset.json": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tileset.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1
+        }
+    },
+    "last.exportedFilePath": "/home/justinrza/Downloads/PUNY_WORLD_v1/Tiled",
+    "lastUsedTilesetExportFilter": "JSON tileset files (*.tsj *.json)",
+    "openFiles": [
+        "/home/justinrza/Downloads/PUNY_WORLD_v1/Tiled/samplemap1.tmj",
+        "/home/justinrza/Downloads/PUNY_WORLD_v1/Tiled/punyworld-overworld-tiles.tsx"
+    ],
+    "project": "demo.tiled-project",
+    "recentFiles": [
+        "/home/justinrza/Downloads/PUNY_WORLD_v1/Tiled/samplemap1.tmj",
+        "/home/justinrza/Downloads/PUNY_WORLD_v1/Tiled/punyworld-overworld-tiles.tsx",
+        "map.json",
+        "tileset.json"
+    ]
+}

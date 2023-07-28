@@ -1,0 +1,69 @@
+<html lang="en">
+<body style="padding:0;margin:0;">
+  <canvas></canvas>
+  <script>
+    var canvas = document.body.getElementsByTagName('canvas')[0];
+    canvas.width = document.body.clientWidth;
+    canvas.height = document.body.clientHeight;
+
+    function getFile(filename)
+    {
+        const request = new XMLHttpRequest();
+        request.open('GET', filename, false);
+        request.send(null);
+        return request.response;
+    }
+
+    let map = JSON.parse(getFile('./resources/map.json'));
+    map.tilesets.forEach(
+        function(tileset, index)
+        {
+            map.tilesets[index].tileset = JSON.parse(getFile(`./resources/${tileset.source}`));
+            let tilesetImage = new Image();
+            tilesetImage.src = `./resources/${map.tilesets[index].tileset.image}`;
+            map.tilesets[index].tileset.set = tilesetImage;
+        }
+    );
+
+    setTimeout(function() {
+        var ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#333";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        map.layers.forEach(function(layer) {
+            ctx.globalAlpha = layer.opacity;
+            if (layer.class === "collision")
+            {
+                ctx.globalAlpha = 0.6;
+                return;
+            }
+            layer.data.forEach(function(cell, index) {
+                let gridRow = Math.floor(index / layer.width);
+                let gridColumn = index % layer.width;
+                let gridY = gridRow * map.tileheight;
+                let gridX = gridColumn * map.tilewidth;
+
+                let tileset = map.tilesets[0].tileset;
+                let tileIndex = cell - 1;
+                let tileRow = Math.floor(tileIndex / tileset.columns);
+                let tileColumn = tileIndex % tileset.columns;
+                let tileY = tileRow * tileset.tileheight;
+                let tileX = tileColumn * tileset.tilewidth;
+
+                ctx.drawImage(
+                    tileset.set,
+                    tileX,
+                    tileY,
+                    tileset.tilewidth,
+                    tileset.tileheight,
+                    gridX,
+                    gridY,
+                    map.tilewidth,
+                    map.tileheight,
+                );
+            })
+        });
+    }, 1000);
+  </script>
+</body>
+</html>

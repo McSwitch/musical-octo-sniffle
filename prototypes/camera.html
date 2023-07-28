@@ -1,0 +1,194 @@
+<html lang="en"> 
+<head>
+    <title>Camera</title>
+    <script src="./source/controller.js"></script>
+    <script src="./source/camera.js"></script>
+    <script>
+        window.addEventListener('contextmenu', event => event.preventDefault());
+        window.addEventListener('resize', event => {
+            camera.Canvas.width = document.body.clientWidth;
+            camera.Canvas.height = document.body.clientHeight;
+        });
+
+        const BackgroundImage = new Image();
+        BackgroundImage.src = './images/LARGE_elevation.jpg';
+
+        var controller = new Controller(
+            {
+                'up': [ 'KeyW', 'ArrowUp' ],
+                'down': [ 'KeyS', 'ArrowDown' ],
+                'left': [ 'KeyA', 'ArrowLeft' ],
+                'right': [ 'KeyD', 'ArrowRight' ],
+                'zoomReset': [ 'KeyR' ],
+                'zoomIn': [ 'NumpadAdd', 'PageUp' ],
+                'zoomOut': [ 'NumpadSubtract', 'PageDown' ],
+            }
+        );
+        
+        var camera = null;
+        window.onload = function() {
+            var canvas = document.getElementsByTagName('canvas')[0];
+            canvas.width = document.body.clientWidth;
+            canvas.height = document.body.clientHeight;
+            camera = new Camera(canvas);
+            camera.X = BackgroundImage.width / 2;
+            camera.Y = BackgroundImage.height / 2;
+            
+            window.requestAnimationFrame(step);
+        };
+        
+        function clipToBounds(value, low, high)
+        {
+            if (value < low)
+            {
+                return low;
+            }
+            if (value > high)
+            {
+                return high;
+            }
+            return value;
+        }
+
+        const ZoomFactor = 0.1;
+        var prevMouseQuadX = null;
+        var prevMouseQuadY = null;
+        function step()
+        {
+            if (controller.Attributes.zoomReset)
+            {
+                camera.Zoom = 1;
+                camera.X = BackgroundImage.width / 2;
+                camera.Y = BackgroundImage.height / 2;
+            }
+
+            let bounds = camera.Canvas.getBoundingClientRect();
+            let mouseX = controller.Attributes.mouseX;
+            let mouseY = controller.Attributes.mouseY;
+
+            let cameraCenterX = camera.Canvas.width / 2;
+            let cameraCenterY = camera.Canvas.height / 2;
+            
+            if (controller.Attributes.mouseWheel > 0 || controller.Attributes.zoomIn)
+            {
+                camera.Zoom += camera.Zoom * ZoomFactor;
+            }
+            else if (controller.Attributes.mouseWheel < 0 || controller.Attributes.zoomOut)
+            {
+                camera.Zoom -= camera.Zoom * ZoomFactor;
+            }
+
+            let mouseQuadX = mouseX * (camera.Zoom - 1) + camera.X;
+            let mouseQuadY = mouseY * (camera.Zoom - 1) + camera.Y;
+            
+            if (controller.Attributes.mouseWheel != 0)
+            {
+                //camera.X -= mouseQuadX - camera.X;
+                //camera.Y -= mouseQuadY - camera.Y;
+                //cameraCenterX = camera.Canvas.width / 2 - mouseQuadX * camera.Zoom;
+            }
+            
+            let mouseDeltaX = 0;
+            let mouseDeltaY = 0;
+            if (controller.Attributes.mouseButton0)
+            {
+                if (!prevMouseQuadX)
+                {
+                    prevMouseQuadX = mouseQuadX;
+                }
+                if (!prevMouseQuadY)
+                {
+                    prevMouseQuadY = mouseQuadY;
+                }
+                mouseDeltaX = mouseQuadX - prevMouseQuadX;
+                mouseDeltaY = mouseQuadY - prevMouseQuadY;
+
+                //camera.X += mouseDeltaX;
+                //camera.Y += mouseDeltaY;
+
+                prevMouseQuadX = mouseQuadX;
+                prevMouseQuadY = mouseQuadY;
+            }
+            else
+            {
+                prevMouseQuadX = null;
+                prevMouseQuadY = null;
+            }
+            
+            if (!controller.Attributes.mouseButton0)
+            {
+                if (controller.Attributes.left)
+                {
+                    camera.X -= 1 / camera.Zoom;
+                }
+                if (controller.Attributes.right)
+                {
+                    camera.X += 1 / camera.Zoom;
+                }
+                if (controller.Attributes.up)
+                {
+                    camera.Y -= 1 / camera.Zoom;
+                }
+                if (controller.Attributes.down)
+                {
+                    camera.Y += 1 / camera.Zoom;
+                }
+            }
+
+            let zoomPointX = camera.Canvas.width * camera.Zoom / 2;
+            let zoomPointY = camera.Canvas.height * camera.Zoom / 2;
+            
+            camera.Before();
+            camera.Render();
+            camera.Context.drawImage(
+                BackgroundImage,
+                0 - camera.X * camera.Zoom,// + camera.Canvas.width / 2,
+                0 - camera.Y * camera.Zoom,// + camera.Canvas.height / 2,
+                BackgroundImage.width * camera.Zoom,
+                BackgroundImage.height * camera.Zoom
+            );
+
+            // Object Center
+            camera.Context.strokeStyle = "orange";
+            camera.Context.beginPath();
+            camera.Context.moveTo(0 - camera.X * camera.Zoom + BackgroundImage.width * camera.Zoom / 2, 0 - camera.Y * camera.Zoom);
+            camera.Context.lineTo(0 - camera.X * camera.Zoom + BackgroundImage.width * camera.Zoom / 2, 0 - camera.Y * camera.Zoom + BackgroundImage.height * camera.Zoom);
+            camera.Context.moveTo(0, 0 - camera.Y * camera.Zoom + BackgroundImage.height * camera.Zoom / 2);
+            camera.Context.lineTo(BackgroundImage.width * camera.Zoom, 0 - camera.Y * camera.Zoom + BackgroundImage.height * camera.Zoom / 2);
+            camera.Context.stroke();
+
+            // Mouse Cursor
+            camera.Context.strokeStyle = "black";
+            camera.Context.beginPath();
+            camera.Context.moveTo(mouseX, 0);
+            camera.Context.lineTo(mouseX, camera.Canvas.height);
+            camera.Context.moveTo(0, mouseY);
+            camera.Context.lineTo(camera.Canvas.width, mouseY);
+            camera.Context.stroke();
+            
+            camera.Context.fillStyle = "white";
+            camera.Context.font = "20px Arial";
+            camera.Context.fillText("x: "+ camera.X, 10, 20);
+            camera.Context.fillText("y: "+ camera.Y, 10, 40);
+            camera.Context.fillText("z: "+ camera.Zoom, 10, 60);
+            
+            camera.After();
+            controller.Reset();
+            window.requestAnimationFrame(step);
+        }
+    </script>
+    <style>
+        body
+        {
+            margin: 0;
+        }
+        canvas
+        {
+            ##cursor: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas></canvas>
+</body>
+</html>

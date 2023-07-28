@@ -1,0 +1,71 @@
+<html lang="en">
+<head>
+  <title>Musical Octo Sniffle</title>
+  <style>
+    body
+    {
+        margin: 0;
+        padding: 0;
+    }
+  </style>
+</head>
+<body>
+  <canvas></canvas>
+
+  <script src="./engine/sniffle.js"></script>
+  <script>
+    let playlists = loadJson('playlists.json', false);
+    let canvas = document.body.getElementsByTagName('canvas')[0];
+    canvas.width = document.body.clientWidth;
+    canvas.height = document.body.clientHeight;
+
+    window.onload = function()
+    {
+        let controller = new Controller(
+            {
+                "up": ["KeyW"],
+                "down": ["KeyS"],
+                "left": ["KeyA"],
+                "right": ["KeyD"],
+                "musicNext": ["ArrowLeft"],
+                "musicPrev": ["ArrowRight"],
+                "musicVolUp": ["ArrowUp"],
+                "musicVolDown": ["ArrowDown"],
+                "musicPause": ["Space"],
+            }
+        );
+
+        let camera = new Camera(canvas);
+
+        let jukebox = new Jukebox(playlists.default);
+        jukebox.Shuffle();
+        jukebox.Play();
+
+        let scene = new Scene();
+
+        controller.press = function(attributeCode)
+        {
+            var volume = jukebox.GetVolume();
+            switch (attributeCode)
+            {
+                case "musicNext":
+                    jukebox.Next();
+                    break;
+                case "musicPrev":
+                    jukebox.Previous();
+                    break;
+                case "musicPause":
+                    jukebox.PauseToggle();
+                    break;
+                case "musicVolUp":
+                    jukebox.SetVolume(volume + volume * 0.1);
+                    break;
+                case "musicVolDown":
+                    jukebox.SetVolume(volume - volume * 0.1);
+                    break;
+            }
+        }
+    };
+  </script>
+</body>
+</html>

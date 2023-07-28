@@ -1,2 +1,7 @@
 # musical-octo-sniffle
-HTML5 2D Sprite Game Engine
+HTML5 2D Sprite Scene Engine
+
+## Scene
+
+* Load map
+* Attach camera(s)

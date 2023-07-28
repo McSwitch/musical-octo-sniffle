@@ -1,0 +1,161 @@
+<html lang="en"> 
+<head>
+    <title>Soundboard</title>
+    <script>
+        window.addEventListener('contextmenu', event => event.preventDefault());
+
+        class Soundboard
+        {
+            #Soundboard = {};
+            Objects = {};
+            
+            constructor(soundboard)
+            {
+                this.#Soundboard = soundboard;
+            }
+            
+            Create(objectId)
+            {
+            }
+            
+            Destroy(objectId)
+            {
+            }
+            
+            Play(objectId, soundCode)
+            {
+                let object = this.Objects[objectId];
+                if (!object)
+                {
+                    this.Objects[objectId] = {};
+                }
+                
+                let sound = this.Objects[objectId][soundCode];
+                if (!sound)
+                {
+                    sound = new Audio(this.#Soundboard[soundCode]);
+                    sound.loop = true;
+                    sound.play();
+                    this.Objects[objectId][soundCode] = sound;
+                }
+            }
+            
+            Stop(objectId, soundCode)
+            {
+                let object = this.Objects[objectId];
+                if (!object)
+                {
+                    return;
+                }
+
+                let sound = object[soundCode];
+                if (!sound)
+                {
+                    return;
+                }
+
+                sound.pause();
+                sound.currentTime = 0;
+            }
+            
+            Pause(objectId, soundCode)
+            {
+                let object = this.Objects[objectId];
+                if (!object)
+                {
+                    return;
+                }
+
+                let sound = object[soundCode];
+                if (!sound)
+                {
+                    return;
+                }
+
+                sound.pause();
+            }
+            
+            GamePause()
+            {
+                Object.keys(this.Objects).forEach(
+                    function(objectId)
+                    {
+                        Object.keys(this.Objects[objectId]).forEach(
+                            function(soundCode)
+                            {
+                                this.Objects[objectId][soundCode].pause();
+                            }
+                        );
+                    }
+                );
+            }
+            
+            GameUnpaused()
+            {
+                Object.keys(this.Objects).forEach(
+                    function(objectId)
+                    {
+                        Object.keys(this.Objects[objectId]).forEach(
+                            function(soundCode)
+                            {
+                                this.Objects[objectId][soundCode].play();
+                            }
+                        );
+                    }
+                );
+            }
+        }
+        var soundboard = new Soundboard(
+            {
+                'walkGrass': './sounds/running-in-grass-6237.mp3'
+            }
+        );
+        
+        var ulSounds = null;
+        window.addEventListener(
+            'load',
+            function()
+            {
+                ulSounds = document.getElementById('sounds');
+                window.requestAnimationFrame(step);
+            }
+        );
+        
+        function step()
+        {
+            let list = '';
+            Object.keys(soundboard.Objects).forEach(
+                function(objectId)
+                {
+                    list += '<li>' + objectId +'<ul>';
+                    Object.keys(soundboard.Objects[objectId]).forEach(
+                        function(soundcode)
+                        {
+                            let sound = soundboard.Objects[objectId][soundcode];
+                            let progress = Math.floor(sound.currentTime / sound.duration * 100);
+                            list += '<li>' + soundcode +' <span style="position:absolute;right:20px;display:inline-block;width:200px;height:8px;background-color:grey;"><span style="display:inline-block;width:'+ progress +'%;height:100%;background-color:lightgreen;"></span></span></li>';
+                        }
+                    );
+                    list += '</ul></li>';
+                }
+            );
+            ulSounds.innerHTML = list;
+            window.requestAnimationFrame(step);
+        }
+    </script>
+</head>
+<body>
+    <button id="play" onclick="javascript:soundboard.Play('character', 'walkGrass')">&#x23F5;</button>
+    <br>
+    <hr>
+    <br>
+    <ul id="sounds">
+        <li>
+            Object 1
+            <ul>
+                <li>Sound 1</li>
+            </ul>
+        </li>
+    </ul>
+</body>
+</html>
