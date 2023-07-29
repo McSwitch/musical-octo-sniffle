@@ -2,7 +2,7 @@ const sniffleScripts = [
     '/engine/camera.js',
     '/engine/controller.js',
     '/engine/jukebox.js',
-    '/engine/scene.js',
+    '/engine/physics.js',
 ];
 
 function loadJson(FILE_URL)

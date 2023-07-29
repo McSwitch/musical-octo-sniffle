@@ -21,6 +21,8 @@
 
     window.onload = function()
     {
+        let physics = new Physics();
+
         let controller = new Controller(
             {
                 "up": ["KeyW"],
@@ -35,19 +37,49 @@
             }
         );
 
-        let camera = new Camera(canvas);
+        let camera = new Camera(canvas, "./scene01");
+        camera.crossHairStyle = "red";
+        camera.zoom = 3;
 
         let jukebox = new Jukebox(playlists.default);
         jukebox.Shuffle();
         jukebox.Play();
 
-        let scene = new Scene();
+        physics.addObject(camera);
 
-        controller.press = function(attributeCode)
+        let speed = 100;
+        controller.down = function(attributeCode)
+        {
+            switch (attributeCode)
+            {
+                case "up":
+                    camera.velocity.y = speed;
+                    break
+                case "down":
+                    camera.velocity.y = speed * -1;
+                    break;
+                case "left":
+                    camera.velocity.x = speed;
+                    break;
+                case "right":
+                    camera.velocity.x = speed * -1;
+                    break;
+            }
+        }
+
+        controller.up = function(attributeCode)
         {
             var volume = jukebox.GetVolume();
             switch (attributeCode)
             {
+                case "up":
+                case "down":
+                    camera.velocity.y = 0;
+                    break;
+                case "left":
+                case "right":
+                    camera.velocity.x = 0;
+                    break;
                 case "musicNext":
                     jukebox.Next();
                     break;

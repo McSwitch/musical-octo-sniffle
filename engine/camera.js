@@ -14,9 +14,22 @@ class Camera
     backgroundColor = "#333";
     crossHairStyle = null;
     fill = true;
+    #map = null;
 
-    constructor(canvas)
+    constructor(canvas, scenePath)
     {
+        let that = this;
+        this.#map = loadJson(`${scenePath}/map.json`);
+        this.#map.tilesets.forEach(
+            function(tileset, index)
+            {
+                that.#map.tilesets[index].tileset = loadJson(`${scenePath}/${tileset.source}`);
+                let tilesetImage = new Image();
+                tilesetImage.src = `${scenePath}/${that.#map.tilesets[index].tileset.image}`;
+                that.#map.tilesets[index].tileset.set = tilesetImage;
+            }
+        );
+
         if (canvas)
         {
             this.canvas = canvas;
@@ -108,6 +121,40 @@ class Camera
 
         ctx.fillStyle = camera.backgroundColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        camera.#map.layers.forEach(function(layer) {
+            ctx.globalAlpha = layer.opacity;
+            if (layer.class === "collision")
+            {
+                ctx.globalAlpha = 0.6;
+                return;
+            }
+            layer.data.forEach(function(cell, index) {
+                let gridRow = Math.floor(index / layer.width);
+                let gridColumn = index % layer.width;
+                let gridY = gridRow * camera.#map.tileheight;
+                let gridX = gridColumn * camera.#map.tilewidth;
+
+                let tileset = camera.#map.tilesets[0].tileset;
+                let tileIndex = cell - 1;
+                let tileRow = Math.floor(tileIndex / tileset.columns);
+                let tileColumn = tileIndex % tileset.columns;
+                let tileY = tileRow * tileset.tileheight;
+                let tileX = tileColumn * tileset.tilewidth;
+
+                ctx.drawImage(
+                    tileset.set,
+                    tileX,
+                    tileY,
+                    tileset.tilewidth,
+                    tileset.tileheight,
+                    Math.floor(camera.position.x) + gridX * camera.zoom,
+                    Math.floor(camera.position.y) + gridY * camera.zoom,
+                    camera.#map.tilewidth * camera.zoom,
+                    camera.#map.tileheight * camera.zoom,
+                );
+            })
+        });
 
         if (camera.crossHairStyle)
         {

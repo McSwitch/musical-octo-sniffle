@@ -18,8 +18,9 @@ const DefaultControllerAttributes = [
 class Controller
 {
     attributes = {};
-    press = null;
     map = {};
+    down = null;
+    up = null;
 
     constructor(bindings)
     {
@@ -59,6 +60,10 @@ class Controller
                 if (attributeCode && !that.attributes[attributeCode])
                 {
                     that.attributes[attributeCode] = true;
+                    if (that.down)
+                    {
+                        that.down(attributeCode);
+                    }
                 }
             }
         );
@@ -72,9 +77,9 @@ class Controller
                 if (attributeCode && that.attributes[attributeCode])
                 {
                     that.attributes[attributeCode] = false;
-                    if (that.press)
+                    if (that.up)
                     {
-                        that.press(attributeCode);
+                        that.up(attributeCode);
                     }
                 }
             }
