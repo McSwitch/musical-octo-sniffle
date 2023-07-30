@@ -37,9 +37,10 @@
             }
         );
 
-        let camera = new Camera(canvas, "./scene01");
+        let camera = new Camera(canvas, "./scenes/scene01");
+        camera.collisionLayerOpacity = 0.6;
         camera.crossHairStyle = "red";
-        camera.zoom = 3;
+        camera.zoom = 2;
 
         let jukebox = new Jukebox(playlists.default);
         jukebox.Shuffle();
@@ -54,7 +55,7 @@
             {
                 case "up":
                     camera.velocity.y = speed;
-                    break
+                    break;
                 case "down":
                     camera.velocity.y = speed * -1;
                     break;

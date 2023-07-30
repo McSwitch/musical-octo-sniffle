@@ -10,11 +10,12 @@ class Camera
     #rendering = false;
     #paused = false;
     canvas = null;
-    #ctx = null;
+    #canvasCtx = null;
     backgroundColor = "#333";
     crossHairStyle = null;
     fill = true;
     #map = null;
+    collisionLayerOpacity = 0;
 
     constructor(canvas, scenePath)
     {
@@ -112,12 +113,12 @@ class Camera
             camera.#duration = camera.#duration * 0.8 + duration * 0.2;
         }
 
-        let canvas = camera.canvas;
-        if (!camera.#ctx)
+        if (!camera.#canvasCtx)
         {
-            camera.#ctx = canvas.getContext("2d");
+            camera.#canvasCtx = camera.canvas.getContext("2d");
         }
-        let ctx = camera.#ctx;
+        let canvas = camera.canvas;
+        let ctx = camera.#canvasCtx;
 
         ctx.fillStyle = camera.backgroundColor;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -126,8 +127,7 @@ class Camera
             ctx.globalAlpha = layer.opacity;
             if (layer.class === "collision")
             {
-                ctx.globalAlpha = 0.6;
-                return;
+                ctx.globalAlpha = camera.collisionLayerOpacity;
             }
             layer.data.forEach(function(cell, index) {
                 let gridRow = Math.floor(index / layer.width);
@@ -144,10 +144,10 @@ class Camera
 
                 ctx.drawImage(
                     tileset.set,
-                    tileX,
-                    tileY,
-                    tileset.tilewidth,
-                    tileset.tileheight,
+                    tileX + 1,
+                    tileY + 1,
+                    tileset.tilewidth - 2,
+                    tileset.tileheight - 2,
                     Math.floor(camera.position.x) + gridX * camera.zoom,
                     Math.floor(camera.position.y) + gridY * camera.zoom,
                     camera.#map.tilewidth * camera.zoom,
